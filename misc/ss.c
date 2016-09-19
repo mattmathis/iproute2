@@ -766,6 +766,8 @@ struct tcpstat {
 	double		    pacing_rate_max;
 	unsigned long long  bytes_acked;
 	unsigned long long  bytes_received;
+	unsigned long long  data_retrans;
+	unsigned long long  data_sent;
 	unsigned int	    segs_out;
 	unsigned int	    segs_in;
 	unsigned int	    data_segs_out;
@@ -778,6 +780,10 @@ struct tcpstat {
 	unsigned int	    fackets;
 	unsigned int	    reordering;
 	unsigned int	    not_sent;
+	unsigned int	    guard1;
+	unsigned int	    synack_stamp;
+	unsigned int	    last_progress;
+	unsigned int	    spurious_retrans;
 	double		    rcv_rtt;
 	double		    min_rtt;
 	int		    rcv_space;
@@ -2083,6 +2089,12 @@ static void tcp_show_info(const struct nlmsghdr *nlh, struct inet_diag_msg *r,
 		s.not_sent = info->tcpi_notsent_bytes;
 		if (info->tcpi_min_rtt && info->tcpi_min_rtt != ~0U)
 			s.min_rtt = (double) info->tcpi_min_rtt / 1000;
+		s.guard1 = info->tcpi_guard;
+		s.synack_stamp = info->tcpi_synack_stamp ;
+		s.data_retrans = info->tcpi_data_retrans ;
+		s.data_sent = info->tcpi_data_sent ;
+		s.last_progress = info->tcpi_last_progress ;
+		s.spurious_retrans = info->tcpi_spurious_retrans ;
 		tcp_stats_print(&s);
 		free(s.dctcp);
 	}
