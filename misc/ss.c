@@ -1828,7 +1828,7 @@ static void tcp_stats_print(struct tcpstat *s)
 		printf(" minrtt:%g", s->min_rtt);
 
 	if (s->delivery_rate) /* BBR */
-		printf(" delivery_rate:%u", s->delivery_rate); /* BBR */
+		printf(" delivery_rate:%sbps", sprint_bw(b1, s->delivery_rate)); /* BBR */
 
 	if (s->guard)
 		printf(" guard:%u", s->guard);
