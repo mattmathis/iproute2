@@ -766,6 +766,7 @@ struct tcpstat {
 	double		    pacing_rate_max;
 	unsigned long long  bytes_acked;
 	unsigned long long  bytes_received;
+	unsigned long long  delivery_rate; /* BBR */
 	unsigned long long  data_retrans;
 	unsigned long long  data_sent;
 	unsigned int	    segs_out;
@@ -780,7 +781,7 @@ struct tcpstat {
 	unsigned int	    fackets;
 	unsigned int	    reordering;
 	unsigned int	    not_sent;
-	unsigned int	    guard1;
+	unsigned int	    guard;
 	unsigned int	    synack_stamp;
 	unsigned int	    last_progress;
 	unsigned int	    spurious_retrans;
@@ -1825,6 +1826,22 @@ static void tcp_stats_print(struct tcpstat *s)
 		printf(" notsent:%u", s->not_sent);
 	if (s->min_rtt)
 		printf(" minrtt:%g", s->min_rtt);
+
+	if (s->delivery_rate) /* BBR */
+		printf(" delivery_rate:%u", s->delivery_rate); /* BBR */
+
+	if (s->guard)
+		printf(" guard:%u", s->guard);
+	if (s->synack_stamp)
+		printf(" synack_stamp:%u", s->synack_stamp);
+	if (s->data_retrans)
+		printf(" data_retrans:%llu", s->data_retrans);
+	if (s->data_sent)
+		printf(" data_sent:%llu", s->data_sent);
+	if (s->last_progress)
+		printf(" last_progress:%u", s->last_progress);
+	if (s->spurious_retrans)
+		printf(" spurious_retrans:%u", s->spurious_retrans);
 }
 
 static void tcp_timer_print(struct tcpstat *s)
@@ -2089,7 +2106,7 @@ static void tcp_show_info(const struct nlmsghdr *nlh, struct inet_diag_msg *r,
 		s.not_sent = info->tcpi_notsent_bytes;
 		if (info->tcpi_min_rtt && info->tcpi_min_rtt != ~0U)
 			s.min_rtt = (double) info->tcpi_min_rtt / 1000;
-		s.guard1 = info->tcpi_guard;
+		s.guard = info->tcpi_guard;
 		s.synack_stamp = info->tcpi_synack_stamp ;
 		s.data_retrans = info->tcpi_data_retrans ;
 		s.data_sent = info->tcpi_data_sent ;
